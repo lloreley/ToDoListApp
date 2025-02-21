@@ -18,5 +18,4 @@ target/
 *.ipr
 
 checkstyle.xml
-pom.xml
 src/test
