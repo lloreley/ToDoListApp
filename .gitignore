@@ -2,7 +2,6 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 
-
 ### STS ###
 .apt_generated
 .classpath
@@ -19,5 +18,5 @@ target/
 *.ipr
 
 checkstyle.xml
-src/test
 pom.xml
+src/test
