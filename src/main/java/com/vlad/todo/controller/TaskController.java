@@ -4,7 +4,6 @@ package com.vlad.todo.controller;
 import com.vlad.todo.model.Task;
 import com.vlad.todo.service.TaskService;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,13 +20,12 @@ public class TaskController {
 
     @GetMapping
     public List<Task> tasksByFilter(@RequestParam(required = false) Boolean completed) {
-        List<Task> filteredTasks = taskService.findAllTasks();
         if (completed != null) {
-            filteredTasks = taskService.findAllTasks().stream()
-                            .filter(todo -> todo.getCompleted() == completed)
-                            .collect(Collectors.toList());
+            return taskService.findAllTasks().stream()
+                    .filter(todo -> todo.getCompleted() == completed)
+                    .toList();
         }
-        return filteredTasks;
+        return taskService.findAllTasks();
     }
 
 
