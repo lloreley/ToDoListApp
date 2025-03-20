@@ -1,6 +1,5 @@
 package com.vlad.todo.mapper;
 
-import com.vlad.todo.dto.TaskDtoRequest;
 import com.vlad.todo.dto.TaskDtoResponse;
 import com.vlad.todo.dto.UserDtoRequest;
 import com.vlad.todo.dto.UserDtoResponse;
@@ -22,16 +21,6 @@ public class UserMapper {
         userEntity.setLastName(userDtoRequest.getLastName());
         userEntity.setEmail(userDtoRequest.getEmail());
         userEntity.setPhone(userDtoRequest.getPhone());
-
-        if (userDtoRequest.getTasks() != null) {
-            List<TaskEntity> entityTasks = new ArrayList<>();
-            for (TaskDtoRequest taskDtoRequest : userDtoRequest.getTasks()) {
-                TaskEntity taskEntity = taskMapper.toEntity(taskDtoRequest);
-                taskEntity.setUser(userEntity);
-                entityTasks.add(taskEntity);
-            }
-            userEntity.setTasks(entityTasks);
-        }
         return userEntity;
     }
 

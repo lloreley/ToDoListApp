@@ -1,6 +1,5 @@
 package com.vlad.todo.dto;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,5 +14,4 @@ public class UserDtoRequest {
     protected String lastName;
     protected String email;
     protected String phone;
-    protected List<TaskDtoResponse> tasks;
 }
