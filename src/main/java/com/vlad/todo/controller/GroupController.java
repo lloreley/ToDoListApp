@@ -1,11 +1,11 @@
 package com.vlad.todo.controller;
 
-import com.vlad.todo.dto.TaskDtoRequest;
-import com.vlad.todo.dto.TaskDtoResponse;
+import com.vlad.todo.dto.GroupDtoRequest;
+import com.vlad.todo.dto.GroupDtoResponse;
 import com.vlad.todo.exception.CreationException;
 import com.vlad.todo.exception.NotFoundException;
 import com.vlad.todo.exception.UpdateException;
-import com.vlad.todo.service.TaskService;
+import com.vlad.todo.service.GroupService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,45 +13,40 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/tasks")
-public class TaskController {
-    private final TaskService taskService;
+@RequestMapping("/groups")
+public class GroupController {
+    private final GroupService groupService;
 
     @Autowired
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
+    public GroupController(GroupService groupService) {
+        this.groupService = groupService;
     }
 
     @GetMapping
-    public List<TaskDtoResponse> tasksByFilter(
-            @RequestParam(required = false) Boolean completed) {
-        if (completed != null) {
-            return taskService.findAllTasks().stream()
-                    .filter(taskDtoResponse -> taskDtoResponse.getIsCompleted() != null
-                            && taskDtoResponse.getIsCompleted() == completed)
-                    .toList();
-        }
-        return taskService.findAllTasks();
+    public List<GroupDtoResponse> getAllGroups() {
+        return groupService.findAll();
     }
 
-    @PostMapping("/saveTask")
-    public TaskDtoResponse saveTask(@RequestBody TaskDtoRequest taskDto) {
-        return taskService.saveTask(taskDto);
+    @PostMapping("/saveGroup")
+    public GroupDtoResponse saveGroup(@RequestBody GroupDtoRequest groupDtoRequest) {
+        return groupService.save(groupDtoRequest);
     }
 
     @PutMapping("/{id}")
-    public TaskDtoResponse updateTask(@PathVariable long id, @RequestBody TaskDtoRequest taskDto) {
-        return taskService.updateTask(id, taskDto);
+    public GroupDtoResponse updateTask(
+            @PathVariable long id,
+            @RequestBody GroupDtoRequest groupDtoRequest) {
+        return groupService.update(id, groupDtoRequest);
     }
 
     @GetMapping("/{id}")
-    public TaskDtoResponse findTaskById(@PathVariable long id) {
-        return taskService.findTaskById(id);
+    public GroupDtoResponse findTaskById(@PathVariable long id) {
+        return groupService.findById(id);
     }
 
-    @DeleteMapping("/deleteTask/{id}")
+    @DeleteMapping("/deleteGroup/{id}")
     public void deleteTaskById(@PathVariable long id) {
-        taskService.deleteTaskById(id);
+        groupService.deleteById(id);
     }
 
     @ExceptionHandler(CreationException.class)

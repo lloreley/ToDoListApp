@@ -23,9 +23,9 @@ public class UserMapper {
         userEntity.setEmail(userDtoRequest.getEmail());
         userEntity.setPhone(userDtoRequest.getPhone());
 
-        if (userDtoRequest.getTasksDtoRequest() != null) {
+        if (userDtoRequest.getTasks() != null) {
             List<TaskEntity> entityTasks = new ArrayList<>();
-            for (TaskDtoRequest taskDtoRequest : userDtoRequest.getTasksDtoRequest()) {
+            for (TaskDtoRequest taskDtoRequest : userDtoRequest.getTasks()) {
                 TaskEntity taskEntity = taskMapper.toEntity(taskDtoRequest);
                 taskEntity.setUser(userEntity);
                 entityTasks.add(taskEntity);
@@ -46,7 +46,8 @@ public class UserMapper {
         for (TaskEntity taskEntity : userEntity.getTasks()) {
             tasksDtoResponse.add(taskMapper.toDto(taskEntity));
         }
-        userDtoResponse.setTasksDtoResponse(tasksDtoResponse);
+        userDtoResponse.setTasks(tasksDtoResponse);
+        userDtoResponse.setGroups(userEntity.getGroups());
         return userDtoResponse;
     }
 }

@@ -6,7 +6,9 @@ import com.vlad.todo.exception.CreationException;
 import com.vlad.todo.exception.NotFoundException;
 import com.vlad.todo.exception.UpdateException;
 import com.vlad.todo.mapper.UserMapper;
+import com.vlad.todo.model.GroupEntity;
 import com.vlad.todo.model.UserEntity;
+import com.vlad.todo.repository.GroupRepository;
 import com.vlad.todo.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +21,35 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final GroupRepository groupRepository;
 
     public List<UserDtoResponse> findAll() {
         List<UserDtoResponse> usersDtoResponse = new ArrayList<>();
         userRepository.findAll().forEach(
                 userEntity -> usersDtoResponse.add(userMapper.toDto(userEntity)));
         return usersDtoResponse;
+    }
+
+    public void addUserToGroup(long userId, long groupId) {
+        GroupEntity groupEntity = groupRepository.findById(groupId)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Group with id %d does not exist", groupId)));
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("User with id %d does not exist", userId)));
+        groupEntity.addUser(user);
+        groupRepository.save(groupEntity);
+    }
+
+    public void removeUserFromGroup(long userId, long groupId) {
+        GroupEntity groupEntity = groupRepository.findById(groupId)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Group with id %d does not exist", groupId)));
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("User with id %d does not exist", userId)));
+        groupEntity.removeUser(user);
+        groupRepository.save(groupEntity);
     }
 
     public UserDtoResponse findById(long id) {
@@ -61,7 +86,7 @@ public class UserService {
         if (userDtoRequest.getFirstName() != null) {
             userEntity.setFirstName(userDtoRequest.getFirstName());
         }
-        if(userDtoRequest.getTasksDtoRequest() != null && !userDtoRequest.getTasksDtoRequest().isEmpty()) {
+        if (userDtoRequest.getTasks() != null && !userDtoRequest.getTasks().isEmpty()) {
             userEntity.getTasks().addAll(userMapper.toEntity(userDtoRequest).getTasks());
             userEntity.getTasks().forEach(taskEntity -> taskEntity.setUser(userEntity));
         }
@@ -74,10 +99,11 @@ public class UserService {
     }
 
     public void deleteUserById(long id) {
-        if (!userRepository.existsById(id)) {
-            throw new NotFoundException(
-                    String.format("User with id %d not found.", id));
-        }
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("User with id %d not found.", id)));
+        userEntity.getGroups().forEach(groupEntity -> groupEntity.getUsers().remove(userEntity));
+
         userRepository.deleteById(id);
     }
 

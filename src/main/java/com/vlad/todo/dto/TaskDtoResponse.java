@@ -1,14 +1,15 @@
 package com.vlad.todo.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.time.LocalDate;
+import lombok.Data;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class TaskDtoResponse extends TaskDtoRequest {
+@Data
+public class TaskDtoResponse {
     private Long id;
+    private String title;
+    private String content;
+    private Boolean isCompleted;
+    private LocalDate deadlineDate;
+    private Boolean isImportant;
+    private Long userId;
 }

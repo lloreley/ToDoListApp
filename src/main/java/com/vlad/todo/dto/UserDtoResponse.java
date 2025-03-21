@@ -1,16 +1,16 @@
 package com.vlad.todo.dto;
 
+import com.vlad.todo.model.GroupEntity;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserDtoResponse extends UserDtoRequest {
+@Data
+public class UserDtoResponse {
     private long id;
-    private List<TaskDtoResponse> tasksDtoResponse;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phone;
+    private List<TaskDtoResponse> tasks;
+    private List<GroupEntity> groups;
 }
