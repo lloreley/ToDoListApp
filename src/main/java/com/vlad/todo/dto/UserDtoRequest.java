@@ -9,5 +9,4 @@ public class UserDtoRequest {
     private String lastName;
     private String email;
     private String phone;
-    private List<TaskDtoRequest> tasks;
 }
