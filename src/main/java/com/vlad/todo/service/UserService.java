@@ -1,5 +1,7 @@
 package com.vlad.todo.service;
 
+import static com.vlad.todo.service.GroupService.GroupWithIdNotFound;
+
 import com.vlad.todo.cache.UserCache;
 import com.vlad.todo.dto.UserDtoRequest;
 import com.vlad.todo.dto.UserDtoResponse;
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 @Transactional
 public class UserService {
+
+    private static final String UserWithIdNotFound = "Пользователь с id %d не найдена";
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
@@ -39,7 +43,7 @@ public class UserService {
         }
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Пользователь с id %d не существует", id)));
+                        String.format(UserWithIdNotFound, id)));
         userCache.put(id, userMapper.toDto(user));
         return userMapper.toDto(user);
     }
@@ -59,7 +63,7 @@ public class UserService {
     public UserDtoResponse updateUser(long id, UserDtoRequest userDtoRequest) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Пользователь с id %d не существует", id)));
+                        String.format(UserWithIdNotFound, id)));
 
         if (userDtoRequest.getEmail() != null) {
             user.setEmail(userDtoRequest.getEmail());
@@ -81,7 +85,7 @@ public class UserService {
     public void deleteUserById(long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Пользователь с id %d не существует", id)));
+                        String.format(UserWithIdNotFound, id)));
         user.getGroups().forEach(group -> group.getUsers().remove(user));
         userCache.remove(id);
         userRepository.deleteById(id);
@@ -97,10 +101,10 @@ public class UserService {
     public void addUserToGroup(long userId, long groupId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Группа с id %d не существует", groupId)));
+                        String.format(GroupWithIdNotFound, groupId)));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Пользователь с id %d не существует", userId)));
+                        String.format(UserWithIdNotFound, userId)));
         group.addUser(user);
         groupRepository.save(group);
     }
@@ -108,10 +112,10 @@ public class UserService {
     public void removeUserFromGroup(long userId, long groupId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Группа с id %d не существует", groupId)));
+                        String.format(GroupWithIdNotFound, groupId)));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Пользователь с id %d не существует", userId)));
+                        String.format(UserWithIdNotFound, userId)));
         group.removeUser(user);
         groupRepository.save(group);
     }

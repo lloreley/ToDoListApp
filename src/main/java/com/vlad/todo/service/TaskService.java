@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 @Transactional
 public class TaskService {
+    public static final String TaskWithIdNotFound = "Задача с id %d не найдена";
+
     private final TaskMapper taskMapper;
     private TaskRepository taskRepository;
     private UserRepository userRepository;
@@ -40,14 +42,14 @@ public class TaskService {
     public TaskDtoResponse findTaskById(long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Задача с %d не найдена", id)));
+                        String.format(TaskWithIdNotFound, id)));
         return taskMapper.toDto(task);
     }
 
     public TaskDtoResponse saveTask(TaskDtoRequest taskDtoRequest) {
         User user = userRepository.findById(taskDtoRequest.getUserId())
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Задача с %d не найдена", taskDtoRequest.getUserId())));
+                        String.format(TaskWithIdNotFound, taskDtoRequest.getUserId())));
         Task task = taskMapper.toEntity(taskDtoRequest);
         task.setUser(user);
         taskRepository.save(task);
@@ -57,7 +59,7 @@ public class TaskService {
     public TaskDtoResponse updateTask(long id, TaskDtoRequest taskDtoRequest) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Задача с %d не найдена", id)));
+                        String.format(TaskWithIdNotFound, id)));
 
         if (taskDtoRequest.getTitle() != null) {
             task.setTitle(taskDtoRequest.getTitle());
@@ -81,7 +83,7 @@ public class TaskService {
     public void deleteTaskById(long id) {
         if (!taskRepository.existsById(id)) {
             throw new NotFoundException(
-                String.format("Задача с %d не найдена", id));
+                String.format(TaskWithIdNotFound, id));
         }
         taskRepository.deleteById(id);
     }
