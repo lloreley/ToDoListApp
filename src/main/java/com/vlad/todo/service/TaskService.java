@@ -2,9 +2,7 @@ package com.vlad.todo.service;
 
 import com.vlad.todo.dto.TaskDtoRequest;
 import com.vlad.todo.dto.TaskDtoResponse;
-import com.vlad.todo.dto.UserDtoResponse;
 import com.vlad.todo.exception.NotFoundException;
-import com.vlad.todo.exception.UpdateException;
 import com.vlad.todo.mapper.TaskMapper;
 import com.vlad.todo.model.Task;
 import com.vlad.todo.model.User;
@@ -14,7 +12,6 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -43,14 +40,14 @@ public class TaskService {
     public TaskDtoResponse findTaskById(long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Task with id %d not found", id)));
+                        String.format("Задача с %d не найдена", id)));
         return taskMapper.toDto(task);
     }
 
     public TaskDtoResponse saveTask(TaskDtoRequest taskDtoRequest) {
         User user = userRepository.findById(taskDtoRequest.getUserId())
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("User with id %d not found", taskDtoRequest.getUserId())));
+                        String.format("Задача с %d не найдена", taskDtoRequest.getUserId())));
         Task task = taskMapper.toEntity(taskDtoRequest);
         task.setUser(user);
         taskRepository.save(task);
@@ -60,7 +57,7 @@ public class TaskService {
     public TaskDtoResponse updateTask(long id, TaskDtoRequest taskDtoRequest) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Task with id %d not found", id)));
+                        String.format("Задача с %d не найдена", id)));
 
         if (taskDtoRequest.getTitle() != null) {
             task.setTitle(taskDtoRequest.getTitle());
@@ -77,18 +74,14 @@ public class TaskService {
         if (taskDtoRequest.getIsImportant() != null) {
             task.setIsImportant(taskDtoRequest.getIsImportant());
         }
-        try {
-            taskRepository.save(task);
-            return taskMapper.toDto(task);
-        } catch (DataIntegrityViolationException ex) {
-            throw new UpdateException("Error updating task with id: " + id);
-        }
+        taskRepository.save(task);
+        return taskMapper.toDto(task);
     }
 
     public void deleteTaskById(long id) {
         if (!taskRepository.existsById(id)) {
             throw new NotFoundException(
-                String.format("Task with id %d not found.", id));
+                String.format("Задача с %d не найдена", id));
         }
         taskRepository.deleteById(id);
     }

@@ -2,16 +2,19 @@ package com.vlad.todo.controller;
 
 import com.vlad.todo.dto.GroupDtoRequest;
 import com.vlad.todo.dto.GroupDtoResponse;
-import com.vlad.todo.exception.CreationException;
-import com.vlad.todo.exception.NotFoundException;
-import com.vlad.todo.exception.UpdateException;
+import com.vlad.todo.exception.InvalidInputException;
 import com.vlad.todo.service.GroupService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Группы", description = "API для управления группами пользователей")
 @RestController
 @RequestMapping("/groups")
 public class GroupController {
@@ -22,45 +25,56 @@ public class GroupController {
         this.groupService = groupService;
     }
 
+    @Operation(summary = "Получить все группы",
+            description = "Возвращает список всех доступных групп")
     @GetMapping
-    public List<GroupDtoResponse> getAllGroups() {
-        return groupService.findAll();
+    public ResponseEntity<List<GroupDtoResponse>> getAllGroups() {
+        return ResponseEntity.ok(groupService.findAll());
     }
 
+    @Operation(summary = "Создать новую группу",
+            description = "Создает новую группу и возвращает её данные")
     @PostMapping("/saveGroup")
-    public GroupDtoResponse saveGroup(@RequestBody GroupDtoRequest groupDtoRequest) {
-        return groupService.save(groupDtoRequest);
+    public ResponseEntity<GroupDtoResponse> saveGroup(
+            @Parameter(description = "Данные новой группы")
+            @Valid @RequestBody GroupDtoRequest groupDtoRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(groupService.save(groupDtoRequest));
     }
 
+    @Operation(summary = "Обновить группу",
+            description = "Обновляет информацию об группе по её ID и возвращает обновлённые данные")
     @PutMapping("/{id}")
-    public GroupDtoResponse updateTask(
+    public ResponseEntity<GroupDtoResponse> updateGroup(
+            @Parameter(description = "ID группы")
             @PathVariable long id,
+            @Parameter(description = "Обновленные данные группы")
             @RequestBody GroupDtoRequest groupDtoRequest) {
-        return groupService.update(id, groupDtoRequest);
+        if (id < 1) {
+            throw new InvalidInputException("Id должно быть больше 0");
+        }
+        return ResponseEntity.ok(groupService.update(id, groupDtoRequest));
     }
 
+    @Operation(summary = "Получить группу по ID", description = "Возвращает группу по её ID")
     @GetMapping("/{id}")
-    public GroupDtoResponse findTaskById(@PathVariable long id) {
-        return groupService.findById(id);
+    public ResponseEntity<GroupDtoResponse> findGroupById(
+            @Parameter(description = "ID группы")
+            @PathVariable long id) {
+        if (id < 1) {
+            throw new InvalidInputException("Id должно быть больше 0");
+        }
+        return ResponseEntity.ok(groupService.findById(id));
     }
 
+    @Operation(summary = "Удалить группу", description = "Удаляет группу по её ID")
     @DeleteMapping("/deleteGroup/{id}")
-    public void deleteTaskById(@PathVariable long id) {
+    public ResponseEntity<Void> deleteGroupById(
+            @Parameter(description = "ID группы")
+            @PathVariable long id) {
+        if (id < 1) {
+            throw new InvalidInputException("Id должно быть больше 0");
+        }
         groupService.deleteById(id);
-    }
-
-    @ExceptionHandler(CreationException.class)
-    public ResponseEntity<String> handleCreateException(CreationException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(UpdateException.class)
-    public ResponseEntity<String> handleUpdateException(UpdateException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        return ResponseEntity.ok().build();
     }
 }

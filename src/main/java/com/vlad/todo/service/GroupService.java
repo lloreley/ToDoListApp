@@ -3,7 +3,6 @@ package com.vlad.todo.service;
 import com.vlad.todo.dto.GroupDtoRequest;
 import com.vlad.todo.dto.GroupDtoResponse;
 import com.vlad.todo.exception.NotFoundException;
-import com.vlad.todo.exception.UpdateException;
 import com.vlad.todo.mapper.GroupMapper;
 import com.vlad.todo.model.Group;
 import com.vlad.todo.repository.GroupRepository;
@@ -11,7 +10,6 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,7 +29,7 @@ public class GroupService {
     public GroupDtoResponse findById(long id) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Group with id %d not found", id)));
+                        String.format("Группа с id %d не найдена", id)));
         return groupMapper.toDto(group);
     }
 
@@ -44,7 +42,7 @@ public class GroupService {
     public GroupDtoResponse update(long id, GroupDtoRequest groupDtoRequest) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Group with id %d not found", id)));
+                        String.format("Группа с id %d не найдена", id)));
 
         if (groupDtoRequest.getName() != null) {
             group.setName(groupDtoRequest.getName());
@@ -52,18 +50,22 @@ public class GroupService {
         if (groupDtoRequest.getDescription() != null) {
             group.setDescription(groupDtoRequest.getDescription());
         }
-        try {
-            groupRepository.save(group);
-            return groupMapper.toDto(group);
-        } catch (DataIntegrityViolationException ex) {
-            throw new UpdateException("Error updating Group with id: " + id);
-        }
+        groupRepository.save(group);
+        return groupMapper.toDto(group);
     }
+
+    public GroupDtoResponse findByName(String name) {
+        Group group = groupRepository.findByName(name)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Группа с названием %s не найдена", name)));
+        return groupMapper.toDto(group);
+    }
+
 
     public void deleteById(long id) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Group with id %d not found.", id)));
+                        String.format("Группа с id %d не найдена", id)));
         group.getUsers().forEach(user -> user.getGroups().remove(group));
         groupRepository.deleteById(id);
     }

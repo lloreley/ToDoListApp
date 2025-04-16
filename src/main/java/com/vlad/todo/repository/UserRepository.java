@@ -16,15 +16,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     void deleteById(long id);
 
-    /*
-    @Query(value = "SELECT u.* FROM user u " +
-            "JOIN user_group ug ON u.id = ug.user_id " +
-            "WHERE ug.group_id = :groupId",
-            nativeQuery = true)
-     */
+    @Query("SELECT u FROM User u JOIN u.groups g WHERE g.name = :groupName")
+    List<User> findUsersByGroupName(@Param("groupName") String groupName);
 
-    @Query("SELECT u FROM User u JOIN u.groups g WHERE g.id = :groupId")
-    List<User> findUsersByGroup(@Param("groupId") long groupId);
 
 
 }

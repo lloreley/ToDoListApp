@@ -2,16 +2,19 @@ package com.vlad.todo.controller;
 
 import com.vlad.todo.dto.TaskDtoRequest;
 import com.vlad.todo.dto.TaskDtoResponse;
-import com.vlad.todo.exception.CreationException;
-import com.vlad.todo.exception.NotFoundException;
-import com.vlad.todo.exception.UpdateException;
+import com.vlad.todo.exception.InvalidInputException;
 import com.vlad.todo.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Задачи", description = "API для управления задачами у пользователей")
 @RestController
 @RequestMapping("/tasks")
 public class TaskController {
@@ -22,55 +25,81 @@ public class TaskController {
         this.taskService = taskService;
     }
 
+    @Operation(summary = "Получить все задачи", description =
+                    "Возвращает список всех задач с возможностью фильтрации по статусу завершения")
     @GetMapping
-    public List<TaskDtoResponse> tasksByFilter(
+    public ResponseEntity<List<TaskDtoResponse>> tasksByFilter(
+            @Parameter(description =
+                    "Статус завершения задач (true - завершенные, false - незавершенные)")
             @RequestParam(required = false) Boolean completed) {
+        List<TaskDtoResponse> tasks = taskService.findAllTasks();
         if (completed != null) {
-            return taskService.findAllTasks().stream()
-                    .filter(taskDtoResponse -> taskDtoResponse.getIsCompleted() != null
-                            && taskDtoResponse.getIsCompleted() == completed)
+            tasks = tasks.stream()
+                    .filter(task -> task.getIsCompleted() != null
+                            && task.getIsCompleted() == completed)
                     .toList();
         }
-        return taskService.findAllTasks();
+        return ResponseEntity.ok(tasks);
     }
 
+    @Operation(summary = "Получить задачи по пользователю",
+            description = "Возвращает список задач для указанного пользователя по его ID")
     @GetMapping("/by-user/{userId}")
-    public List<TaskDtoResponse> tasksByUser(@PathVariable long userId) {
-        return taskService.findTasksByUser(userId);
+    public ResponseEntity<List<TaskDtoResponse>> tasksByUser(
+            @Parameter(description = "ID пользователя")
+            @PathVariable long userId) {
+        if (userId < 1) {
+            throw new InvalidInputException("Id должен быть больше 0");
+        }
+        return ResponseEntity.ok(taskService.findTasksByUser(userId));
     }
 
+    @Operation(summary = "Создать новую задачу",
+            description = "Создает новую задачу и возвращает её данные")
     @PostMapping("/saveTask")
-    public TaskDtoResponse saveTask(@RequestBody TaskDtoRequest taskDto) {
-        return taskService.saveTask(taskDto);
+    public ResponseEntity<TaskDtoResponse> saveTask(
+            @Parameter(description = "Данные новой задачи")
+            @Valid @RequestBody TaskDtoRequest taskDto) {
+        TaskDtoResponse savedTask = taskService.saveTask(taskDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedTask);
     }
 
+    @Operation(summary = "Обновить задачу",
+            description = "Обновляет задачу по её ID и возвращает обновленные данные")
     @PutMapping("/{id}")
-    public TaskDtoResponse updateTask(@PathVariable long id, @RequestBody TaskDtoRequest taskDto) {
-        return taskService.updateTask(id, taskDto);
+    public ResponseEntity<TaskDtoResponse> updateTask(
+            @Parameter(description = "ID задачи")
+            @PathVariable long id,
+            @Parameter(description = "Обновленные данные задачи")
+            @RequestBody TaskDtoRequest taskDto) {
+        if (id < 1) {
+            throw new InvalidInputException("Id должен быть больше 0");
+        }
+        return ResponseEntity.ok(taskService.updateTask(id, taskDto));
     }
 
+    @Operation(summary = "Получить задачу по ID",
+            description = "Возвращает задачу по её уникальному идентификатору")
     @GetMapping("/{id}")
-    public TaskDtoResponse findTaskById(@PathVariable long id) {
-        return taskService.findTaskById(id);
+    public ResponseEntity<TaskDtoResponse> findTaskById(
+            @Parameter(description = "ID задачи")
+            @PathVariable long id) {
+        if (id < 1) {
+            throw new InvalidInputException("Id должен быть больше 0");
+        }
+        return ResponseEntity.ok(taskService.findTaskById(id));
     }
 
+    @Operation(summary = "Удалить задачу",
+            description = "Удаляет задачу по её ID")
     @DeleteMapping("/deleteTask/{id}")
-    public void deleteTaskById(@PathVariable long id) {
+    public ResponseEntity<Void> deleteTaskById(
+            @Parameter(description = "ID задачи")
+            @PathVariable long id) {
+        if (id < 1) {
+            throw new InvalidInputException("Id должен быть больше 0");
+        }
         taskService.deleteTaskById(id);
-    }
-
-    @ExceptionHandler(CreationException.class)
-    public ResponseEntity<String> handleCreateException(CreationException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(UpdateException.class)
-    public ResponseEntity<String> handleUpdateException(UpdateException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        return ResponseEntity.ok().build();
     }
 }
