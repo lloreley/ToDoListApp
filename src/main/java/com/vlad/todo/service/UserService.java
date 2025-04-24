@@ -123,7 +123,7 @@ public class UserService {
 
     @Transactional
     public List<UserDtoResponse> saveAll(List<UserDtoRequest> userDtoRequests) {
-        List<UserDtoResponse> usersDtoResponses = userDtoRequests.stream()
+        return userDtoRequests.stream()
                 .map(userDtoRequest -> {
                     if (userRepository.existsByEmail(userDtoRequest.getEmail())
                             || userRepository.existsByPhone(userDtoRequest.getPhone())) {
@@ -134,8 +134,6 @@ public class UserService {
                     userRepository.save(user);
                     return userMapper.toDto(user);
                 })
-                .collect(Collectors.toList());
-
-        return usersDtoResponses;
+                .toList();
     }
 }
