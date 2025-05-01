@@ -41,12 +41,6 @@ public class LogService {
     private static final String LOG_FILE_PATH = "log/app.log";
     private static final String DATE_FORMAT = "yyyy-mm-dd";
 
-    //private final Executor executor;
-
-    //public LogService(@Qualifier("executor") Executor executor) {
-        //this.executor = executor;
-    //}
-
     private static final Path TEMP_DIR = Paths.get("D:/documents/JavaLabs/temp");
 
     static {
