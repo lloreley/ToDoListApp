@@ -20,10 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -43,11 +41,11 @@ public class LogService {
     private static final String LOG_FILE_PATH = "log/app.log";
     private static final String DATE_FORMAT = "yyyy-mm-dd";
 
-    private final Executor executor;
+    //private final Executor executor;
 
-    public LogService(@Qualifier("executor") Executor executor) {
-        this.executor = executor;
-    }
+    //public LogService(@Qualifier("executor") Executor executor) {
+        //this.executor = executor;
+    //}
 
     private static final Path TEMP_DIR = Paths.get("D:/documents/JavaLabs/temp");
 
@@ -214,7 +212,7 @@ public class LogService {
         Long id = idCounter.getAndIncrement();
         LogObject logObject = new LogObject(id, "IN_PROGRESS");
         tasks.put(id, logObject);
-        executor.execute(() -> this.createLogs(id, date));
+        createLogs(id, date);
         return id;
     }
 
