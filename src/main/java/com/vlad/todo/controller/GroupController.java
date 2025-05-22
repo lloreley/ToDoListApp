@@ -2,6 +2,7 @@ package com.vlad.todo.controller;
 
 import com.vlad.todo.dto.GroupDtoRequest;
 import com.vlad.todo.dto.GroupDtoResponse;
+import com.vlad.todo.dto.UserDtoResponse;
 import com.vlad.todo.exception.InvalidInputException;
 import com.vlad.todo.service.GroupService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Группы", description = "API для управления группами пользователей")
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/groups")
 public class GroupController {
     private final GroupService groupService;
@@ -23,6 +25,12 @@ public class GroupController {
     @Autowired
     public GroupController(GroupService groupService) {
         this.groupService = groupService;
+    }
+
+    @GetMapping("/{id}/users")
+    public ResponseEntity<List<UserDtoResponse>> getUsersByGroupId(@PathVariable Long id) {
+        GroupDtoResponse group = groupService.findById(id);
+        return ResponseEntity.ok(group.getUsers().stream().toList());
     }
 
     @Operation(summary = "Получить все группы",

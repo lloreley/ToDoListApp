@@ -41,7 +41,7 @@ public class LogService {
     private final AtomicLong idCounter = new AtomicLong(1);
     private final Map<Long, LogObject> tasks = new ConcurrentHashMap<>();
     private static final String LOG_FILE_PATH = "log/app.log";
-    private static final String DATE_FORMAT = "yyyy-mm-dd";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     private final Executor executor;
 
@@ -126,7 +126,6 @@ public class LogService {
         }
     }
 
-
     public void filterAndWriteLogsToTempFile(Path logFilePath,
                                              String formattedDate, Path tempFile) {
         try (BufferedReader reader = Files.newBufferedReader(logFilePath)) {
@@ -155,13 +154,12 @@ public class LogService {
         }
     }
 
-
     @Async("executor")
     public void createLogs(Long taskId, String date) {
         try {
             Thread.sleep(20000);
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             LocalDate logDate = LocalDate.parse(date, formatter);
 
             Path path = Paths.get(LOG_FILE_PATH);
@@ -214,14 +212,14 @@ public class LogService {
         Long id = idCounter.getAndIncrement();
         LogObject logObject = new LogObject(id, "IN_PROGRESS");
         tasks.put(id, logObject);
-        executor.execute(() -> this.createLogs(id, date));
+        executor.execute(() -> createLogs(id, date));
         return id;
     }
 
     public LogObject getStatus(Long taskId) {
         LogObject obj = tasks.get(taskId);
         if (obj == null) {
-            throw new InvalidInputException("Log object not found");
+            throw new NotFoundException("Log object not found");
         }
         return obj;
     }

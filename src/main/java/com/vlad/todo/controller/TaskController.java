@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Задачи", description = "API для управления задачами у пользователей")
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/tasks")
 public class TaskController {
     private final TaskService taskService;
