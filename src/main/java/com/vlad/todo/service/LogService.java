@@ -153,6 +153,7 @@ public class LogService {
                     + e.getMessage());
         }
     }
+
     @Async("executor")
     public void createLogs(Long taskId, String date) {
         try {
