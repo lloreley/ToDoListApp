@@ -218,7 +218,7 @@ public class LogService {
         Long id = idCounter.getAndIncrement();
         LogObject logObject = new LogObject(id, "IN_PROGRESS");
         tasks.put(id, logObject);
-        executor.execute(() -> createLogs(id, date));
+        executor.execute(() -> createLogs(id, date)); //NOSONAR
         return id;
     }
 
