@@ -2,7 +2,6 @@ package com.vlad.todo.exception.global;
 
 import com.vlad.todo.exception.AlreadyExistsException;
 import com.vlad.todo.exception.InvalidInputException;
-import com.vlad.todo.exception.LogException;
 import com.vlad.todo.exception.NotFoundException;
 import com.vlad.todo.model.ErrorResponse;
 import java.util.stream.Collectors;
@@ -21,14 +20,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidInputException.class)
     public ResponseEntity<ErrorResponse> handleInvalidInputException(InvalidInputException ex) {
         log.error("Invalid input: {}", ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(), ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(LogException.class)
-    public ResponseEntity<ErrorResponse> handleLogException(LogException ex) {
-        log.error("Log exception: {}", ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(), ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);

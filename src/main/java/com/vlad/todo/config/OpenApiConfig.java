@@ -18,6 +18,6 @@ public class OpenApiConfig {
                         .description("API documentation for ToDo API"))
                 .externalDocs(new ExternalDocumentation()
                         .description("GitHub repository")
-                        .url("https://github.com/lloreley/ToDoList.git"));
+                        .url("https://github.com/lloreley/ToDoListApp.git"));
     }
 }

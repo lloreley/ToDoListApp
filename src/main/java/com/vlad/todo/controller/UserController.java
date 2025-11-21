@@ -6,7 +6,6 @@ import com.vlad.todo.exception.InvalidInputException;
 import com.vlad.todo.exception.NotFoundException;
 import com.vlad.todo.service.GroupService;
 import com.vlad.todo.service.UserService;
-import com.vlad.todo.service.VisitCounterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,22 +25,18 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     private final GroupService groupService;
-    private final VisitCounterService visitCounterService;
 
 
     @Autowired
-    public UserController(UserService userService, GroupService groupService,
-                          VisitCounterService visitCounterService) {
+    public UserController(UserService userService, GroupService groupService) {
         this.userService = userService;
         this.groupService = groupService;
-        this.visitCounterService = visitCounterService;
     }
 
     @Operation(summary = "Получить всех пользователей",
             description = "Возвращает список всех пользователей")
     @GetMapping
     public ResponseEntity<List<UserDtoResponse>> allUsers() {
-        visitCounterService.increment();
         return ResponseEntity.ok(userService.findAll());
     }
 
@@ -144,7 +139,6 @@ public class UserController {
     public ResponseEntity<List<UserDtoResponse>> saveAllUsers(
             @Parameter(description = "Данные новых пользователей")
             @Valid @RequestBody List<UserDtoRequest> userDtoRequests) {
-        log.info("here");
         List<UserDtoResponse> savedUsers = userService.saveAll(userDtoRequests);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUsers);
     }

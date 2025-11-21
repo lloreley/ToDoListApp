@@ -13,14 +13,26 @@ import lombok.*;
 @NoArgsConstructor
 @Table(name = "groups")
 public class Group {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, length = 50)
     private String name;
+
     @Column(nullable = false, length = 200)
     private String description;
+
     private LocalDate createdDate = LocalDate.now();
+
+    // 🔥 Каскадное удаление связанного списка групповых задач
+    @OneToMany(
+            mappedBy = "group",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<GroupTask> groupTasks = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     @JoinTable(
@@ -29,6 +41,7 @@ public class Group {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> users = new ArrayList<>();
+
 
     public void addUser(User user) {
         if (!users.contains(user)) {
@@ -41,5 +54,4 @@ public class Group {
         users.remove(user);
         user.getGroups().remove(this);
     }
-
 }
