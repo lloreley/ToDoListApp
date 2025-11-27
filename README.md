@@ -13,7 +13,7 @@ ___
 ![Registration](/images/registration.png)
 
 ### Main User Page
-![Main User Page](/images/main_user_page.png)
+![Main User Page](/images/tasks_user_page.png)
 
 ### Tasks User Page
 ![Tasks User Page](/images/tasks_user_page.png)
